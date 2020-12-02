@@ -1,6 +1,9 @@
 
-
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -9,42 +12,142 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import org.json.JSONObject;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Servlet implementation class uploadController
  */
-@MultipartConfig(
-		maxFileSize = 1024*1024*5,
-		maxRequestSize = 1024*1024*10,
-		location = "/Users/yoonho/Desktop/java/uploadfile",
-		fileSizeThreshold=1024*1024*10
-		)
-@WebServlet("/index")
+@MultipartConfig(maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024
+		* 10, location = "/Users/yoonho/Desktop/java/uploadfile", fileSizeThreshold = 1024 * 1024 * 10)
+@WebServlet({ "/index", "/upload", "/createcollection", "/listcollections", "/deletecollection",
+		"/addfacestocollection", "/listfacesincollection", "/deletefacesfromcollection",
+		"/faceauthentication","/welcome","/home" })
 public class uploadController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public uploadController() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
+	public static String ImagePath ="/Users/yoonho/Desktop/java/uploadfile";
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		Part part = request.getPart("file");
-//		String fileName = getFileName(part);
-		String fileName =part.getSubmittedFileName();
-		part.write(fileName);
+	public uploadController() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		PrintWriter pw;
+		String collectionName;
+		String email;
+		String name;
+		JSONObject DBjson;
+		switch (request.getServletPath()) {
+		case "/home":
+			request.getRequestDispatcher("home.jsp").forward(request, response);
+			break;
+		case "/welcome":
+			email = "qkdgkrrnt@namver.com";
+			new Welcome(email);
+			break;
+		case "/addfacestocollection":
+//			DBjson = new JSONObject(request.getParameter("DBjson"));
+			email = "yoonho2015@gmail.com";
+			name = "yoonho";
+//			collectionName = request.getParameter("collectionName");
+			collectionName = "yoonho";
+			new FolderCheck().FolderCreate(email, collectionName);
+			Part AFCpart = request.getPart("file");
+			new SaveImage(email, collectionName, AFCpart);
+			ArrayList<AwsVo> AFCresult = new AddFacesToCollection().AddFacesToCollectionact(collectionName, email,
+					AFCpart.getSubmittedFileName());
+			System.out.println(AFCresult);
+			new SubImage(AFCresult);
+
+			String AFCresultjson = new ObjectMapper().writeValueAsString(AFCresult);
+			pw = response.getWriter();
+			pw.print(AFCresultjson);
+			break;
+		case "/listcollections":
+			DBjson = new JSONObject(request.getParameter("DBjson"));
+			email = DBjson.getString("cm_email");
+			name = DBjson.getString("cm_name");
+			collectionName = request.getParameter("collectionName");
+			ArrayList<AwsVo> LCresult = new ListCollections().ListCollectionact(email, name);
+			String LCresultjson = new ObjectMapper().writeValueAsString(LCresult);
+			pw = response.getWriter();
+			pw.print(LCresultjson);
+			break;
+		case "/listfacesincollection":
+			
+			collectionName = request.getParameter("LFCtext");
+			email = "yoonho2015@gmail.com";
+
+			ArrayList<SubimgVo> LFCresult = new ListFacesInCollection().ListFacesInCollectionact(collectionName, email);
+			String LFCresultjson = new ObjectMapper().writeValueAsString(LFCresult);
+			pw = response.getWriter();
+			pw.print(LFCresultjson);
+			break;
+		case "/deletefacesfromcollection":
+			collectionName = request.getParameter("DFCtext");
+			System.out.println(collectionName);
+			String facesId[] = { "6416c215-d4a9-4b01-b431-8be9b4177af6" };// 웹에서 select된 목록 받아서 faceid 배열 생
+			String filename ="2.jpg";
+			email = "yoonho2015@gmail.com";
+			String collectionId = "yoonho2015."+collectionName;
+			ArrayList<AwsVo> DFCresult = new DeleteFacesFromCollection().DeleteFacesFromCollectionact(collectionId,
+					facesId);
+			new FolderCheck().ImageDelete(email, collectionName,filename);
+			System.out.println(DFCresult);
+			break;
+		case "/faceauthentication":
+			email = "yoonho2015@gmail.com";
+			collectionName = "yoonho";
+			pw = response.getWriter();
+			response.setContentType("text/html;charset=utf-8");
+			System.out.println(request.getContentType());
+			String imageSrc = request.getParameter("image");
+			String SaveFilename = new SaveImage(email,collectionName,imageSrc).Filename;
+			ArrayList<AwsVo> FAresult = new FaceAuthentication(email, SaveFilename).voList;
+			switch (FAresult.get(0).getStcode()) {
+			case 220:
+				new SubImage(FAresult);
+				
+				String imgPath ="http://localhost:8080/localTest/img"+
+				File.separator+email+File.separator+collectionName+File.separator+"subimg"+File.separator+FAresult.get(0).getFilename();
+				SubimgVo SubimgVo = new SubimgVo();
+				SubimgVo.setImgPath(imgPath);
+				SubimgVo.setEmail(email);
+				SubimgVo.setCollectionName(collectionName);
+				SubimgVo.setMsg(FAresult.get(0).getState()+"\n"+"어서오세요");
+				String FAresultJson = new ObjectMapper().writeValueAsString(SubimgVo);
+				pw.print(FAresultJson);
+				break;
+			case 210:
+				break;
+//			case 220:
+//				break;
+			default:
+				break;
+			}
+			
+
+			break;
+		}
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
