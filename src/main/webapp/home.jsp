@@ -17,12 +17,11 @@ async function FaceAuthentication(){
           method: 'POST',
         body: data
         });
+        
+        if(response.status != 200) {throw new Error('HTTP response code != 200'); }
         let FAimgjson = await response.json();
-        console.log(FAimgjson);
         document.getElementById("faceindexed").src = FAimgjson.imgPath;
         document.getElementById("msg").innerText = FAimgjson.msg;
-        if(response.status != 200) {throw new Error('HTTP response code != 200'); }
-         document.getElementById('FAstatus').innerText="OK";
     } catch (e) {
       return_data={error:1,message:e.message};
       console.log(e.message)

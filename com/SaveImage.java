@@ -1,6 +1,7 @@
 
 
 
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class SaveImage {
 		}
 	}
 	
-		public SaveImage(String email, String collectionName,String url) {
+		public SaveImage(String email, String url) {
 		Date today = new Date();
 		Filename = new SimpleDateFormat("yyyyMMddHHmmss").format(today)+".jpg"; 
 			Path=uploadController.ImagePath+File.separator+email+File.separator+Filename;

@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import org.json.JSONObject;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -42,12 +40,13 @@ public class uploadController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		response.addHeader("Access-Control-Allow-Origin", "*");
+		System.out.println(request.getHeader("Origin"));
+		response.addHeader("Access-Control-Allow-Origin",request.getHeader("Origin"));
+		
 		PrintWriter pw;
 		String collectionName;
 		String email;
 		String name;
-		JSONObject DBjson;
 		switch (request.getServletPath()) {
 		case "/home":
 			request.getRequestDispatcher("home.jsp").forward(request, response);
@@ -61,7 +60,7 @@ public class uploadController extends HttpServlet {
 			email = "yoonho2015@gmail.com";
 			name = "yoonho";
 //			collectionName = request.getParameter("collectionName");
-			collectionName = "yoonho";
+			collectionName = "ResidentGroup";
 			new FolderCheck().FolderCreate(email, collectionName);
 			Part AFCpart = request.getPart("file");
 			new SaveImage(email, collectionName, AFCpart);
@@ -74,15 +73,27 @@ public class uploadController extends HttpServlet {
 			pw = response.getWriter();
 			pw.print(AFCresultjson);
 			break;
+
 		case "/listcollections":
-			DBjson = new JSONObject(request.getParameter("DBjson"));
-			email = DBjson.getString("cm_email");
-			name = DBjson.getString("cm_name");
+			email = "yoonho2015@gmail.com";
+			name = "yoonho";
 			collectionName = request.getParameter("collectionName");
 			ArrayList<AwsVo> LCresult = new ListCollections().ListCollectionact(email, name);
 			String LCresultjson = new ObjectMapper().writeValueAsString(LCresult);
 			pw = response.getWriter();
 			pw.print(LCresultjson);
+			break;
+		case "/deletecollection":
+			email = "yoonho2015@gmail.com";
+			name = "yoonho";
+			collectionName = request.getParameter("collectionName");
+			ArrayList<AwsVo> DCresult = new DeleteCollection().DeleteCollectionact(email, collectionName);
+			System.out.println(DCresult);
+			new FolderCheck().FolderDelete(email, collectionName);
+			String DCresultjson = new ObjectMapper().writeValueAsString(DCresult);
+			System.out.println(DCresultjson);
+			pw = response.getWriter();
+			pw.print(DCresultjson);
 			break;
 		case "/listfacesincollection":
 			
@@ -97,8 +108,8 @@ public class uploadController extends HttpServlet {
 		case "/deletefacesfromcollection":
 			collectionName = request.getParameter("DFCtext");
 			System.out.println(collectionName);
-			String facesId[] = { "6416c215-d4a9-4b01-b431-8be9b4177af6" };// 웹에서 select된 목록 받아서 faceid 배열 생
-			String filename ="2.jpg";
+			String facesId[] = { "" };// 웹에서 select된 목록 받아서 faceid 배열 생
+			String filename ="";
 			email = "yoonho2015@gmail.com";
 			String collectionId = "yoonho2015."+collectionName;
 			ArrayList<AwsVo> DFCresult = new DeleteFacesFromCollection().DeleteFacesFromCollectionact(collectionId,
@@ -108,37 +119,46 @@ public class uploadController extends HttpServlet {
 			break;
 		case "/faceauthentication":
 			email = "yoonho2015@gmail.com";
-			collectionName = "yoonho";
-			pw = response.getWriter();
 			response.setContentType("text/html;charset=utf-8");
+			pw = response.getWriter();
 			System.out.println(request.getContentType());
 			String imageSrc = request.getParameter("image");
-			String SaveFilename = new SaveImage(email,collectionName,imageSrc).Filename;
+			String SaveFilename = new SaveImage(email,imageSrc).Filename;
 			ArrayList<AwsVo> FAresult = new FaceAuthentication(email, SaveFilename).voList;
+			collectionName = FAresult.get(0).getCollectionName();
 			switch (FAresult.get(0).getStcode()) {
-			case 220:
+			case 200:
+				System.out.println("contoller case 진입");
 				new SubImage(FAresult);
-				
-				String imgPath ="http://localhost:8080/localTest/img"+
-				File.separator+email+File.separator+collectionName+File.separator+"subimg"+File.separator+FAresult.get(0).getFilename();
+				String imgPath = "http://yoonhonas.synology.me:8081/awsrekog/img" + File.separator + email + File.separator
+						+ collectionName + File.separator + "subimg" + File.separator + FAresult.get(0).getFilename();
 				SubimgVo SubimgVo = new SubimgVo();
 				SubimgVo.setImgPath(imgPath);
 				SubimgVo.setEmail(email);
 				SubimgVo.setCollectionName(collectionName);
-				SubimgVo.setMsg(FAresult.get(0).getState()+"\n"+"어서오세요");
+				SubimgVo.setMsg(FAresult.get(0).getState() + "\n" + "어서오세요");
 				String FAresultJson = new ObjectMapper().writeValueAsString(SubimgVo);
+				System.out.println(FAresultJson);
 				pw.print(FAresultJson);
 				break;
 			case 210:
 				break;
-//			case 220:
-//				break;
+			case 220:
+				break;
 			default:
+				new SubImage(FAresult);
+				imgPath = "http://localhost:8080/localTest/img" + File.separator + email + File.separator
+						+ collectionName + File.separator + "subimg" + File.separator + FAresult.get(0).getFilename();
+				SubimgVo = new SubimgVo();
+				SubimgVo.setImgPath(imgPath);
+				SubimgVo.setMsg(FAresult.get(0).getState());
+				FAresultJson = new ObjectMapper().writeValueAsString(SubimgVo);
+				pw.print(FAresultJson);
 				break;
 			}
 			
-
-			break;
+		default:
+		break;
 		}
 	}
 

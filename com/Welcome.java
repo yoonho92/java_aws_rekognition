@@ -1,11 +1,12 @@
 import java.io.File;
+import java.util.ArrayList;
 
 public class Welcome {
 
 	public Welcome(String email) {
 		
-		
-		new CreateCollection().CreateCollectionAct(email,"ResidentGroup");
+		ArrayList<AwsVo> AwsVo =new CreateCollection().CreateCollectionAct(email,"ResidentGroup");
+		if(AwsVo.get(0).stcode!=200) {System.out.println("Welcome class에서 ResidentGroup collection 생성 실패"); return;}
 		
 		File Folder1 = new File(uploadController.ImagePath+File.separator + email);// 저장위치 확정하고 경로완성할
 		// 해당 디렉토리가 없을경우 디렉토리를 생성합니다.

@@ -23,7 +23,7 @@ public class SearchFaceMatchingImageCollection {
 // Search collection for faces similar to the largest face in the image.
 		String collectionId = email.substring(0,email.lastIndexOf('@'))+'.'+collectionName;
 		SearchFacesByImageRequest searchFacesByImageRequest = new SearchFacesByImageRequest()
-				.withCollectionId(collectionId).withImage(image).withFaceMatchThreshold(70F).withMaxFaces(1);
+				.withCollectionId(collectionId).withImage(image).withFaceMatchThreshold(60F).withMaxFaces(1);
 
 		try {
 		SearchFacesByImageResult searchFacesByImageResult = rekognitionClient
@@ -51,7 +51,6 @@ public class SearchFaceMatchingImageCollection {
 			AwsVo.setMFboundingBoxTop(face.getFace().getBoundingBox().getTop());
 			AwsVo.setMFboundingBoxWidth(face.getFace().getBoundingBox().getWidth());
 			AwsVo.setMFboundingBoxHeight(face.getFace().getBoundingBox().getHeight());
-			System.out.println(AwsVo);
 			voList.add(AwsVo);
 		}
 		}catch (AmazonRekognitionException e) {
@@ -73,7 +72,7 @@ public class SearchFaceMatchingImageCollection {
 			AwsVo.setState("식별된 Face가 없습니다. \n다시 시도해주세요.");
 			voList.add(AwsVo);
 		}
-		System.out.println("성공");
+		System.out.println("SFclass success");
 		return voList;
 	}
 }

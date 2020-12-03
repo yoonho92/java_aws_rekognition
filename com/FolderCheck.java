@@ -55,17 +55,22 @@ public class FolderCheck {
 				File[] folder_list = folder.listFiles(); // 파일리스트 얻어오기
 
 				for (int j = 0; j < folder_list.length; j++) {
-					folder_list[j].delete(); // 파일 삭제
+					if(folder_list[j].isFile()){
+					folder_list[j].delete();
 					System.out.println(collectionName+"폴더내 파일이 삭제되었습니다.");
-
-				}
-
+					}else {
+						FolderDelete(email, collectionName+File.separator+folder_list[j].getName());
+						//재귀호출로 해당 폴더 경로에서 delete메서드 다시 실행
+						}
+					}
 				if (folder_list.length == 0 && folder.isDirectory()) {
 					folder.delete(); // 대상폴더 삭제
 					System.out.println(collectionName+" 폴더가 삭제되었습니다.");
 				}
+				
+				}
 			}
-		} catch (Exception e) {
+		 catch (Exception e) {
 			e.getStackTrace();
 		}
 	}

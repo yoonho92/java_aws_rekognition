@@ -1,4 +1,5 @@
 
+
 import java.util.ArrayList;
 import java.util.List;
 import com.amazonaws.services.rekognition.AmazonRekognition;
@@ -38,15 +39,17 @@ public class ListCollections {
 			collectionIds = listCollectionsResult.getCollectionIds();
 			
 			for (String collectionId : collectionIds) {
+				if(!collectionId.substring(0,collectionId.lastIndexOf('.')).equals(email.substring(0,email.lastIndexOf('@')))) continue;
 				AwsVo= new AwsVo();
 				AwsVo.setCollectionId(collectionId);
+				AwsVo.setCollectionName(collectionId.substring(collectionId.lastIndexOf('.')+1));
 				AwsVo.setAction("ListCollections");
 				AwsVo.setState("Collection Listed");
 				AwsVo.setStcode(200);
 				AwsVo.setEmail(email);
 				AwsVo.setName(name);
 				voList.add(AwsVo);
-				
+			
 			}
 		} while (listCollectionsResult != null && listCollectionsResult.getNextToken() != null);
 		return voList;

@@ -72,6 +72,25 @@ async function ListFacesInCollection(){
       return_data={error:1,message:e.message};
     } return return_data;
   }
+async function ListCollections() {
+	
+
+    let return_data = {error:0,message:''};
+    try {
+   	  let LCdata = new FormData();
+
+      let response = await fetch('<%=cp%>/listcollections',{
+        method:'POST',
+        body: LCdata
+      });
+      if(response.status != 200) {throw new Error('HTTP response code != 200');}
+      let response_json =await response.text();
+      document.getElementById('LCh6').innerText=response_json;
+    } catch (e) {
+      return_data={error:1,message:e.message};
+    }
+    return return_data;
+  }
 async function DeleteFacesFromCollection(){
 	
 
@@ -91,26 +110,31 @@ async function DeleteFacesFromCollection(){
       return_data={error:1,message:e.message};
     } return return_data;
   }
-async function SearchFaceMatchingImageCollection(){
-    let return_data ={error:0,message:''};
-    try {
-    	var SFimgupload =document.getElementById("SFimageupload");
-      if(SFimgupload.files.length==0){
-        throw new Error('No file selected');
-      }else{
-        let data = new FormData();
-        data.append('file',SFimgupload.files[0]);                
-        let response = await fetch('<%= cp %>/searchfacematchingimagecollection',{
-          method: 'POST',
-        body: data
-        });
-        let SFimgjson = await response.json();
-        console.log(SFimgjson)
-        if(response.status != 200) {throw new Error('HTTP response code != 200'); }
-         document.getElementById('SFimagestatus').innerText="OK";}
-    } catch (e) {
-      return_data={error:1,message:e.message};
-    } return return_data;
+
+async function DeleteCollection() {
+	let dbResponse = await fetch('<%=cp%>/selectOne',{
+		method:'POST',
+	});
+	let DBjson = await dbResponse.text();
+
+    let return_data = {error:0,message:''};
+    try{
+    	let DLdata = new FormData();
+        DLdata.append('collectionName',document.getElementById('DLtext').value);
+        DLdata.append('DBjson',DBjson);
+     let response = await fetch('<%=cp%>/deletecollection',{
+      method: 'POST',
+      body: DLdata
+    });
+
+
+    if(response.status != 200) {throw new Error('HTTP response code != 200');}
+    let response_json =await response.text();
+    document.getElementById('DLh4').innerText=response_json;
+    }catch (e) {
+        return_data={error:1,message:e.message};
+      }
+    return return_data;
   }
 window.onload=function(){
 	document.getElementById("AFCbtn").addEventListener('click', async function() {
@@ -123,17 +147,23 @@ window.onload=function(){
         if(LFC.error ==0)document.getElementById('state').innerText="LFC OK";
         else if(LFC.error ==1) document.getElementById('state').innerText="LFC fail";
       });
+	document.getElementById("DLbtn").addEventListener('click', async function(){
+	    let DL = await DeleteCollection();
+	    if(DL.error==0) document.getElementById('state').innerText="DL OK";
+	    else if(DL.error ==1) alert("collection deleting faied - "+ DL.message)
+	});
 	document.getElementById("DFCbtn").addEventListener('click', async function() {
         let DFC = await DeleteFacesFromCollection();
         if(DFC.error ==0)document.getElementById('state').innerText="DFC OK";
         else if(DFC.error ==1) document.getElementById('state').innerText="DFC fail";
       });
-	document.getElementById("SFimagebtn").addEventListener('click', async function() {
-        let SFimage = await SearchFaceMatchingImageCollection();
-        if(SFimage.error ==0) document.getElementById('state').innerText="SFimage OK";
-        else if(SFimage.error ==1) document.getElementById('state').innerText="SFimage fail";
-      });
+	document.getElementById("LCbtn").addEventListener('click', async function(){
+	    let LC = await ListCollections();
+	    if(LC.error==0) document.getElementById('state').innerText="LC OK";
+	    else if(LC.error ==1) alert("collection creating faied - "+ LC.message)
+	});
 }
+
 </script>
 </head>
 <body>
@@ -141,6 +171,16 @@ window.onload=function(){
 	<input type="file" accept="image/*" id="AFCupload" name="upload3"
 		value="" onchange="previewFile()">
 	<input type="button" id="AFCbtn" value="AddFacesToCollection">
+	<br>
+	<br>
+	<input type="button" name="" value="ListCollections" id="LCbtn">
+	<h4 id="LCh6"></h4>
+	<br>
+	<br>
+	<input type="text" name="" value="" id="DLtext">
+	<input type="button" name="" value="DeleteCollection" id="DLbtn">
+	<h4 id="DLh4"></h4>
+	<br>
 	<br>
 	<h4 id="AFCh4"></h4>
 	<img src="./images/link_theapplication_2893.ico" height="100"
@@ -153,23 +193,15 @@ window.onload=function(){
 	<h4 id="LFCh4"></h4>
 	<br>
 	<br>
+	
 	<input type="text" name="DFCtext" value="" id="DFCtext">
 	<input type="button" name="" value="DeleteFacesFromCollection"
 		id="DFCbtn">
 	<h4 id="DFCh4"></h4>
 	<br>
 	<br>
-	<input type="file" accept="image/*" id="SFimageupload" name="upload4"
-		value="" onchange="previewFile()">
-    <input type="button" id="SFimagebtn" value="ok">
-    <br>
-    
-
 	
-	<br>
-	<h6 id="SFimagestatus">상태</h6>
-	<img src="./images/link_theapplication_2893.ico" height="100"
-		alt="preview4" id="SFimageuploadimg">
+
 	<h2 id="state"></h2>
 </body>
 </html>
