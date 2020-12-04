@@ -11,7 +11,7 @@ public class AwsVo {
 	String action;
 	String filename;
 	String faceId;
-	String confidence;
+	float confidence;
 	String state;
 	int stcode;
 	float boundingBoxLeft;
@@ -23,7 +23,7 @@ public class AwsVo {
 	String MFid;
 	String MFfilename;
 	String MFsimilarity;
-	String MFconfidence;
+	float MFconfidence;
 	int ImageWidth;
 	int ImageHeight;
 	float MFboundingBoxLeft;
@@ -72,10 +72,10 @@ public class AwsVo {
 	public void setFaceId(String faceId) {
 		this.faceId = faceId;
 	}
-	public String getConfidence() {
+	public float getConfidence() {
 		return confidence;
 	}
-	public void setConfidence(String confidence) {
+	public void setConfidence(float confidence) {
 		this.confidence = confidence;
 	}
 	public String getState() {
@@ -144,10 +144,10 @@ public class AwsVo {
 	public void setMFsimilarity(String mFsimilarity) {
 		MFsimilarity = mFsimilarity;
 	}
-	public String getMFconfidence() {
+	public float getMFconfidence() {
 		return MFconfidence;
 	}
-	public void setMFconfidence(String mFconfidence) {
+	public void setMFconfidence(float mFconfidence) {
 		MFconfidence = mFconfidence;
 	}
 	public int getImageWidth() {

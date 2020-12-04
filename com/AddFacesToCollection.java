@@ -13,7 +13,7 @@ import com.amazonaws.services.rekognition.model.UnindexedFace;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+//얼굴 추가시 저장되는 바운딩박스 메서드 변경 MFbounding -> Bounding
 public class AddFacesToCollection {
 
 	public ArrayList<AwsVo> AddFacesToCollectionact(String collectionName, String email,String fileName) {
@@ -30,13 +30,13 @@ public class AddFacesToCollection {
 				.withExternalImageId(fileName).withDetectionAttributes("DEFAULT");
 		try {
 			IndexFacesResult indexFacesResult = rekognitionClient.indexFaces(indexFacesRequest);
-			System.out.println("Faces indexed");
+			
 			List<FaceRecord> faceRecords = indexFacesResult.getFaceRecords();
 			for (FaceRecord faceRecord : faceRecords) {
 				//System.out.println(" Location:" + faceRecord.getFaceDetail().getBoundingBox().toString());
 				AwsVo = new AwsVo();
 				AwsVo.setFaceId(faceRecord.getFace().getFaceId());
-				AwsVo.setConfidence(faceRecord.getFace().getConfidence().toString());
+				AwsVo.setConfidence(faceRecord.getFace().getConfidence());
 				AwsVo.setFilename(fileName);
 				AwsVo.setEmail(email);	
 					
@@ -45,12 +45,13 @@ public class AddFacesToCollection {
 				AwsVo.setAction("AddFacesToCollectionact");
 				AwsVo.setState("Face Added");
 				AwsVo.setStcode(200);
-				AwsVo.setMFboundingBoxLeft(faceRecord.getFace().getBoundingBox().getLeft());
-				AwsVo.setMFboundingBoxTop(faceRecord.getFace().getBoundingBox().getTop());
-				AwsVo.setMFboundingBoxWidth(faceRecord.getFace().getBoundingBox().getWidth());
-				AwsVo.setMFboundingBoxHeight(faceRecord.getFace().getBoundingBox().getHeight());
+				AwsVo.setBoundingBoxLeft(faceRecord.getFace().getBoundingBox().getLeft());
+				AwsVo.setBoundingBoxTop(faceRecord.getFace().getBoundingBox().getTop());
+				AwsVo.setBoundingBoxWidth(faceRecord.getFace().getBoundingBox().getWidth());
+				AwsVo.setBoundingBoxHeight(faceRecord.getFace().getBoundingBox().getHeight());
 				voList.add(AwsVo);
 				List<UnindexedFace> unindexedFaces = indexFacesResult.getUnindexedFaces();
+				if(!unindexedFaces.isEmpty()) System.out.println("Faces indexed successful");
 			for (UnindexedFace unindexedFace : unindexedFaces) {
 					
 					//System.out.println(" Location:" + unindexedFace.getFaceDetail().getBoundingBox().toString());

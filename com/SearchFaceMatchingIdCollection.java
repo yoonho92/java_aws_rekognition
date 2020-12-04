@@ -11,9 +11,10 @@ import java.util.List;
 
 public class SearchFaceMatchingIdCollection {
 
-	public ArrayList<AwsVo> SearchFaceMatchingIdCollectionact(String collectionId, String faceId) {
+	public ArrayList<AwsVo> SearchFaceMatchingIdCollectionact(String email, String collectionName, String faceId) {
 		ArrayList<AwsVo> voList = new ArrayList<AwsVo>();
 		AwsVo AwsVo = new AwsVo();
+		String collectionId = email.substring(0,email.lastIndexOf('@'))+'.'+collectionName;
 		AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.defaultClient();
 		SearchFacesRequest searchFacesRequest = new SearchFacesRequest().withCollectionId(collectionId)
 				.withFaceId(faceId).withFaceMatchThreshold(70F).withMaxFaces(1);
@@ -24,11 +25,16 @@ public class SearchFaceMatchingIdCollection {
 			AwsVo = new AwsVo();
 			AwsVo.setAction("SearchFaceMatchingImageCollection");
 			AwsVo.setCollectionId(collectionId);
-			AwsVo.setMFconfidence(face.getFace().getConfidence().toString());
-			AwsVo.setMFfilename(face.getFace().getExternalImageId());
+			
+			
+			AwsVo.setMFconfidence(face.getFace().getConfidence());
 			AwsVo.setMFid(face.getFace().getFaceId());
-			AwsVo.setMFsimilarity(face.getSimilarity().toString());
-			AwsVo.setFilename(faceId);
+			AwsVo.setMFsimilarity(face.getSimilarity().toString());			
+			AwsVo.setMFfilename(face.getFace().getExternalImageId());
+			AwsVo.setMFboundingBoxLeft(face.getFace().getBoundingBox().getLeft());
+			AwsVo.setMFboundingBoxTop(face.getFace().getBoundingBox().getTop());
+			AwsVo.setMFboundingBoxWidth(face.getFace().getBoundingBox().getWidth());
+			AwsVo.setMFboundingBoxHeight(face.getFace().getBoundingBox().getHeight());
 			
 			voList.add(AwsVo);
 		}}catch (AmazonRekognitionException e) {

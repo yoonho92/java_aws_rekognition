@@ -1,7 +1,6 @@
 
 import java.io.File;
 import java.util.ArrayList;
-
 public class FaceAuthentication {
 	ArrayList<AwsVo> voList;
 	public FaceAuthentication(String email,String SaveFilename) {
@@ -11,6 +10,7 @@ public class FaceAuthentication {
 		 int check=0;
 		String[] fileList = file.list();
 		for (String collectionName : fileList) {
+			//collection이름으로 디렉터리를 생성했으므로 디렉터리가 아닌경우 pass
 			if(!new File(uploadController.ImagePath+File.separator+email+File.separator+collectionName).isDirectory()) continue;
 			System.out.println(collectionName +"검색 시작");
 			voList = new SearchFaceMatchingImageCollection().SearchFaceMatchingImageCollectionact(email,collectionName,SaveFilename);

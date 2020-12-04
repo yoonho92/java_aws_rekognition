@@ -1,11 +1,21 @@
 
 
 import java.io.File;
-
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+//파일 이동 메서드 추가, 성공여부 Boolean 반환
+//FolderCreate 생성자로 변경
 public class FolderCheck {
-	
-	public void FolderCreate(String email, String collectionName) {
+	public FolderCheck() {
+		
+	}
+	String email;
+	String collectionName;
+	public FolderCheck(String email, String collectionName) {
 		// TODO Auto-generated method stub
+		this.email = email;
+		this.collectionName = collectionName;
 		File Folder = new File(uploadController.ImagePath+File.separator + email);// 저장위치 확정하고 경로완성할
 		// 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
 		if (!Folder.exists()) {
@@ -88,5 +98,19 @@ public class FolderCheck {
 		}else {
 			System.out.println(filename+"이 존재하지 않습니다.");
 		}
+	}
+	public Boolean FileMove(String Filename, String Topath) {
+		String Filepath = uploadController.ImagePath + File.separator +email + File.separator + Filename;
+		try {
+			Path filePath = Paths.get(Filepath);
+			Path filePathToMove = Paths.get(Topath);
+			Files.move(filePath,filePathToMove);
+			System.out.println("file move success");
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 }

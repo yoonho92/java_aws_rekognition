@@ -53,6 +53,27 @@ async function AddFacesToCollection(){
       return_data={error:1,message:e.message};
     } return return_data;
   }
+async function CreateCollection() {
+
+
+    let return_data = {error:0,message:''};
+    try{
+    	let data = new FormData();
+    	data.append('collectionName',document.getElementById('CCtext').value);
+    let response = await fetch('<%=cp%>/createcollection',{
+      method: 'POST',
+      body: data
+    });
+    if(response.status != 200) {throw new Error('HTTP response code != 200');
+
+    }
+    let responseText = await response.text();
+    console.log(responseText);
+    }catch (e) {
+        return_data={error:1,message:e.message};
+      }
+    return return_data;
+  }
 async function ListFacesInCollection(){
 	
 
@@ -137,6 +158,11 @@ async function DeleteCollection() {
     return return_data;
   }
 window.onload=function(){
+	document.getElementById("CCbtn").addEventListener('click', async function(){
+	    let CC = await CreateCollection();
+	    if(CC.error==0) document.getElementById('state').innerText="CC OK";
+	    else if(CC.error ==1) alert("collection creating faied - "+ CC.message)
+	  });
 	document.getElementById("AFCbtn").addEventListener('click', async function() {
 	    let AFC = await AddFacesToCollection();
 	    if(AFC.error ==0) document.getElementById('state').innerText="AFC OK";
@@ -171,6 +197,10 @@ window.onload=function(){
 	<input type="file" accept="image/*" id="AFCupload" name="upload3"
 		value="" onchange="previewFile()">
 	<input type="button" id="AFCbtn" value="AddFacesToCollection">
+	<br>
+	<br>
+	<input type="text" name="" value="" id="CCtext">
+	<input type="button" name="" value="CreateCollection" id="CCbtn">
 	<br>
 	<br>
 	<input type="button" name="" value="ListCollections" id="LCbtn">

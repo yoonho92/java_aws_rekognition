@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -40,7 +41,7 @@ public class uploadController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		System.out.println(request.getHeader("Origin"));
+
 		response.addHeader("Access-Control-Allow-Origin",request.getHeader("Origin"));
 		
 		PrintWriter pw;
@@ -61,7 +62,7 @@ public class uploadController extends HttpServlet {
 			name = "yoonho";
 //			collectionName = request.getParameter("collectionName");
 			collectionName = "ResidentGroup";
-			new FolderCheck().FolderCreate(email, collectionName);
+			new FolderCheck(email, collectionName);
 			Part AFCpart = request.getPart("file");
 			new SaveImage(email, collectionName, AFCpart);
 			ArrayList<AwsVo> AFCresult = new AddFacesToCollection().AddFacesToCollectionact(collectionName, email,
@@ -73,7 +74,17 @@ public class uploadController extends HttpServlet {
 			pw = response.getWriter();
 			pw.print(AFCresultjson);
 			break;
-
+		case "/createcollection":
+			email = "yoonho2015@gmail.com";
+			name = "yoonho";
+			collectionName = request.getParameter("collectionName");
+			new FolderCheck(email, collectionName);
+			ArrayList<AwsVo> CCresult = new CreateCollection().CreateCollectionAct(email, collectionName);
+			String CCresultjson = new ObjectMapper().writeValueAsString(CCresult);
+			System.out.println(CCresultjson);
+			pw = response.getWriter();
+			pw.print(CCresultjson);
+			break;
 		case "/listcollections":
 			email = "yoonho2015@gmail.com";
 			name = "yoonho";
@@ -128,10 +139,10 @@ public class uploadController extends HttpServlet {
 			collectionName = FAresult.get(0).getCollectionName();
 			switch (FAresult.get(0).getStcode()) {
 			case 200:
-				System.out.println("contoller case 진입");
+				System.out.println("/faceauthentication 내부 switch문 case 200 진입");
 				new SubImage(FAresult);
 				String imgPath = "http://yoonhonas.synology.me:8081/awsrekog/img" + File.separator + email + File.separator
-						+ collectionName + File.separator + "subimg" + File.separator + FAresult.get(0).getFilename();
+						+ collectionName + File.separator + "subimg" + File.separator + SaveFilename;
 				SubimgVo SubimgVo = new SubimgVo();
 				SubimgVo.setImgPath(imgPath);
 				SubimgVo.setEmail(email);
@@ -145,15 +156,28 @@ public class uploadController extends HttpServlet {
 				break;
 			case 220:
 				break;
-			default:
-				new SubImage(FAresult);
+			case 300:
+				System.out.println("/faceauthentication 내부 switch문 case 300 진입");
+				//이동시킬 파일 
+				String Filename = SaveFilename; 
+				//이동 대상 경로
+				String Topath =  ImagePath +File.separator+ email + File.separator + "GuestGroup"+ File.separator +File.separator + Filename;
+				//파일 이동, 실패시 리턴
+				if(!new FolderCheck(email,"GuestGroup").FileMove(Filename, Topath)) {System.out.println("FolderMove 실패"); return;}	
+				//GuestGroup에 해당 face 추가
+				ArrayList<AwsVo> GesutAFCresult = new AddFacesToCollection().AddFacesToCollectionact("GuestGroup", email,
+						Filename);
+				new SubImage(GesutAFCresult);
 				imgPath = "http://localhost:8080/localTest/img" + File.separator + email + File.separator
-						+ collectionName + File.separator + "subimg" + File.separator + FAresult.get(0).getFilename();
+						+ "GuestGroup" + File.separator + "subimg" + File.separator + Filename;
 				SubimgVo = new SubimgVo();
 				SubimgVo.setImgPath(imgPath);
 				SubimgVo.setMsg(FAresult.get(0).getState());
 				FAresultJson = new ObjectMapper().writeValueAsString(SubimgVo);
 				pw.print(FAresultJson);
+				break;
+			default:
+				System.out.println("/faceauthentication 내부 switch문 case default 진입");
 				break;
 			}
 			

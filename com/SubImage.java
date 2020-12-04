@@ -12,25 +12,23 @@ import javax.imageio.ImageIO;
 
 
 public class SubImage {
-
+	//MFbounding 메서드 제거
 	public SubImage(ArrayList<AwsVo> voList) {
 		AwsVo AwsVo = voList.get(0);
 		if(AwsVo.stcode>=400) return;
 		String email = AwsVo.getEmail();
 		String collectionName = AwsVo.getCollectionName();
 		String filename = AwsVo.getFilename();
-		float left = AwsVo.getMFboundingBoxLeft();
-		float top = AwsVo.getMFboundingBoxTop();
-		float width = AwsVo.getMFboundingBoxWidth();
-		float height = AwsVo.getMFboundingBoxHeight();
+		float left = AwsVo.getBoundingBoxLeft();
+		float top = AwsVo.getBoundingBoxTop();
+		float width = AwsVo.getBoundingBoxWidth();
+		float height = AwsVo.getBoundingBoxHeight();
 		try {
+			
 			File imgfile = new File(uploadController.ImagePath+File.separator+email+File.separator+collectionName+File.separator+filename);
 			if(!imgfile.isFile()) {
 				imgfile = new File(uploadController.ImagePath+File.separator+email+File.separator+filename);
-				left = AwsVo.getBoundingBoxLeft();
-				top = AwsVo.getBoundingBoxTop();
-				width = AwsVo.getBoundingBoxWidth();
-				height = AwsVo.getBoundingBoxHeight();
+
 				}
 			InputStream IS = new FileInputStream(imgfile);
 			BufferedImage BI = ImageIO.read(IS);
