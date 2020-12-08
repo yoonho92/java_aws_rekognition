@@ -230,7 +230,9 @@ window.onload=function(){
 	<h4 id="DFCh4"></h4>
 	<br>
 	<br>
-	
+	<form action="<%= request.getContextPath() %>/GuestList" method="POST">
+	<input type = "submit" value="OK">
+	</form>
 
 	<h2 id="state"></h2>
 </body>

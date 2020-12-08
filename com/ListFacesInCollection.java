@@ -52,6 +52,7 @@ public class ListFacesInCollection {
 				AwsVo.setFilename(face.getExternalImageId());
 				AwsVo.setEmail(email);
 				voList.add(AwsVo);
+
 				SubimgVo= new SubimgVo();
 				SubimgVo.setCollectionName(collectionName);
 				SubimgVo.setEmail(email);

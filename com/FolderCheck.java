@@ -1,48 +1,66 @@
 
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-//파일 이동 메서드 추가, 성공여부 Boolean 반환
-//FolderCreate 생성자로 변경
+
+
 public class FolderCheck {
-	public FolderCheck() {
-		
-	}
 	String email;
 	String collectionName;
+
 	public FolderCheck(String email, String collectionName) {
-		// TODO Auto-generated method stub
 		this.email = email;
 		this.collectionName = collectionName;
-		File Folder = new File(uploadController.ImagePath+File.separator + email);// 저장위치 확정하고 경로완성할
+		String checkPath = uploadController.ImagePath + File.separator + email + File.separator + collectionName;
+		if (!new File(checkPath).exists()) {
+			System.out.println("FolderCheck 실패");
+			return;
+		}
+	}
+
+	public FolderCheck(String email) {
+		String checkPath = uploadController.ImagePath + File.separator + email;
+		if (!new File(checkPath).exists()) {
+			System.out.println("FolderCheck 실패");
+			return;
+		}
+		
+	}
+	public FolderCheck() {}
+	
+	public void FolderCreate(String email, String collectionName) {
+		// TODO Auto-generated method stub
+
+		File Folder = new File(uploadController.ImagePath + File.separator + email);// 저장위치 확정하고 경로완성할
 		// 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
 		if (!Folder.exists()) {
 			try {
 				Folder.mkdir(); // 폴더 생성합니다.
-				System.out.println(email+" 폴더가 생성되었습니다.");
+				System.out.println(email + " 폴더가 생성되었습니다.");
 			} catch (Exception e) {
 				e.getStackTrace();
 			}
 		} else {
-			System.out.println(email+"기존에 생성된 폴더 입니다.");
+			System.out.println(email + "기존에 생성된 폴더 입니다.");
 		}
-		
-		
-		Folder = new File(uploadController.ImagePath +File.separator+email + File.separator + collectionName);// 저장위치 확정하고 경로완성할
+
+		Folder = new File(uploadController.ImagePath + File.separator + email + File.separator + collectionName);// 저장위치
+																													// 확정하고
+																													// 경로완성할
 		// 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
 		if (!Folder.exists()) {
 			try {
 				Folder.mkdir(); // 폴더 생성합니다.
-				System.out.println(collectionName+" 폴더가 생성되었습니다.");
+				System.out.println(collectionName + " 폴더가 생성되었습니다.");
 			} catch (Exception e) {
 				e.getStackTrace();
 			}
 		} else {
-			System.out.println(collectionName+"기존에 생성된 폴더 입니다.");
+			System.out.println(collectionName + "기존에 생성된 폴더 입니다.");
 		}
-		Folder = new File(uploadController.ImagePath+File.separator + email + File.separator + collectionName+File.separator+"subimg");
+		Folder = new File(uploadController.ImagePath + File.separator + email + File.separator + collectionName
+				+ File.separator + "subimg");
 		// 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
 		if (!Folder.exists()) {
 			try {
@@ -58,53 +76,56 @@ public class FolderCheck {
 	}
 
 	public void FolderDelete(String email, String collectionName) {
-		String path = uploadController.ImagePath+File.separator + email + File.separator + collectionName;
+		String path = uploadController.ImagePath + File.separator + email + File.separator + collectionName;
 		File folder = new File(path);
 		try {
 			while (folder.exists()) {
 				File[] folder_list = folder.listFiles(); // 파일리스트 얻어오기
 
 				for (int j = 0; j < folder_list.length; j++) {
-					if(folder_list[j].isFile()){
-					folder_list[j].delete();
-					System.out.println(collectionName+"폴더내 파일이 삭제되었습니다.");
-					}else {
-						FolderDelete(email, collectionName+File.separator+folder_list[j].getName());
-						//재귀호출로 해당 폴더 경로에서 delete메서드 다시 실행
-						}
+					if (folder_list[j].isFile()) {
+						folder_list[j].delete();
+						System.out.println(collectionName + "폴더내 파일이 삭제되었습니다.");
+					} else {
+						FolderDelete(email, collectionName + File.separator + folder_list[j].getName());
+						// 재귀호출로 해당 폴더 경로에서 delete메서드 다시 실행
 					}
+				}
 				if (folder_list.length == 0 && folder.isDirectory()) {
 					folder.delete(); // 대상폴더 삭제
-					System.out.println(collectionName+" 폴더가 삭제되었습니다.");
+					System.out.println(collectionName + " 폴더가 삭제되었습니다.");
 				}
-				
-				}
+
 			}
-		 catch (Exception e) {
+		} catch (Exception e) {
 			e.getStackTrace();
 		}
 	}
 
-	public void ImageDelete(String email,String collectionName, String filename) {
-		String path = uploadController.ImagePath+File.separator+email+File.separator+collectionName+File.separator+filename;
+	public void ImageDelete(String email, String collectionName, String filename) {
+		String path = uploadController.ImagePath + File.separator + email + File.separator + collectionName
+				+ File.separator + filename;
 		File file = new File(path);
-		if(file.exists()) {
+		if (file.exists()) {
 			try {
-			file.delete();
-			System.out.println(filename+"image가 삭제되었습니다.");
-			}catch(Exception e) {
+				file.delete();
+				System.out.println(filename + "image가 삭제되었습니다.");
+			} catch (Exception e) {
 				e.getStackTrace();
 			}
-		}else {
-			System.out.println(filename+"이 존재하지 않습니다.");
+		} else {
+			System.out.println(filename + "이 존재하지 않습니다.");
 		}
 	}
-	public Boolean FileMove(String Filename, String Topath) {
-		String Filepath = uploadController.ImagePath + File.separator +email + File.separator + Filename;
+
+	public Boolean FileMove(String Filepath, String Topath) {
 		try {
 			Path filePath = Paths.get(Filepath);
+			if(!new File(Filepath).exists()) {
+				System.out.println("FolderCheck 클래스, FileMove 메서드, 파일이 존재하지 않습니다. : "+ filePath.getFileName());
+			}
 			Path filePathToMove = Paths.get(Topath);
-			Files.move(filePath,filePathToMove);
+			Files.move(filePath, filePathToMove);
 			System.out.println("file move success");
 		} catch (Exception e) {
 			// TODO: handle exception

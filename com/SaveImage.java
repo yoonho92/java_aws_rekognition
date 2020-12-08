@@ -13,10 +13,13 @@ import java.util.Date;
 import javax.servlet.http.Part;
 
 public class SaveImage {
-	String Filename;
+	//현재 시간으로 파일의 이름을 설정
+	Date today = new Date();
+	String Filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(today)+".jpg"; 
 	String Path;
 	public SaveImage(String email, String collectionName, Part part) {
-		Filename = part.getSubmittedFileName();
+		
+		
 		Path=uploadController.ImagePath+File.separator+email+File.separator+collectionName+File.separator+Filename;
 		try {
 			InputStream IS = part.getInputStream();
@@ -36,8 +39,6 @@ public class SaveImage {
 	}
 	
 		public SaveImage(String email, String url) {
-		Date today = new Date();
-		Filename = new SimpleDateFormat("yyyyMMddHHmmss").format(today)+".jpg"; 
 			Path=uploadController.ImagePath+File.separator+email+File.separator+Filename;
 			try {
 				InputStream IS = new URL(url).openStream();

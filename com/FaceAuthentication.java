@@ -13,11 +13,12 @@ public class FaceAuthentication {
 			//collection이름으로 디렉터리를 생성했으므로 디렉터리가 아닌경우 pass
 			if(!new File(uploadController.ImagePath+File.separator+email+File.separator+collectionName).isDirectory()) continue;
 			System.out.println(collectionName +"검색 시작");
+			//해당 collection에 동일인이 있는지 검색
 			voList = new SearchFaceMatchingImageCollection().SearchFaceMatchingImageCollectionact(email,collectionName,SaveFilename);
+			//stcode가 200 일시 collection내에서 동일인이 검색이 된 경우로 어느 collection인지 
 			if(voList.get(0).getStcode() == 200) {
 				switch (voList.get(0).getCollectionName()) {
 				case "ResidentGroup":
-					System.out.println("resi 진입");
 					voList.get(0).setState("거주자 확인");
 					check =1;
 					break;

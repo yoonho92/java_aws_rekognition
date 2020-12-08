@@ -5,7 +5,7 @@ import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.AmazonRekognitionException;
 import com.amazonaws.services.rekognition.model.CreateCollectionRequest; 
-//collection 생성 추
+//collection 생성 추가
 public class CreateCollection  {
 	public ArrayList<AwsVo> CreateCollectionAct(String email, String collectionName){
 	AwsVo AwsVo = new AwsVo();
