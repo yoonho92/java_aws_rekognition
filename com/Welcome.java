@@ -1,58 +1,49 @@
+
+
 import java.io.File;
 import java.util.ArrayList;
-//GuestGroup collection 생성및 폴더 생성
+import java.util.regex.Pattern;
+
+//email 폴더 존재유무 검사후 collection을 생성하고 string 배열에 담긴 기본 collection 목록을 반복문을 이용해 폴더를 생성
 public class Welcome {
 
 	public Welcome(String email) {
+		boolean emailCheck = Pattern.matches("\\w+@\\w+\\.[a-zA-Z]+", email);
+		if(!emailCheck) {
+			System.out.println("유효한 이메일 형식이 아닙니다.");
+			return;
+		}
+		String[] folderList = {"ResidentGroup","CautionGroup","GuestGroup"};
 		
-		ArrayList<AwsVo> AwsVo =new CreateCollection().CreateCollectionAct(email,"ResidentGroup");
-		if(AwsVo.get(0).stcode!=200) {
-			System.out.println("Welcome class에서 ResidentGroup collection 생성 실패");
-			System.out.println(AwsVo.get(0).errmsg);
-			}
-		AwsVo =new CreateCollection().CreateCollectionAct(email,"GeustGroup");
-		if(AwsVo.get(0).stcode!=200) {
-			System.out.println("Welcome class에서 GeustGroup 생성 실패");
-			System.out.println(AwsVo.get(0).errmsg);
-			}
-		File Folder1 = new File(uploadController.ImagePath+File.separator + email);// 저장위치 확정하고 경로완성할
-		// 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
-		if (!Folder1.exists()) {
+		//해당 디렉토리가 없을경우 디렉토리를 생성
+		File Folder = new File(uploadController.ImagePath+File.separator + email);
+		if (!Folder.exists()) {
+			ArrayList<AwsVo> AwsVo =new CreateCollection().CreateCollectionAct(email,"ResidentGroup");
+			if(AwsVo.get(0).stcode!=200) {
+				System.out.println("Welcome class에서 ResidentGroup collection 생성 실패");
+				System.out.println(AwsVo.get(0).errmsg);
+				}
+			AwsVo =new CreateCollection().CreateCollectionAct(email,"GeustGroup");
+			if(AwsVo.get(0).stcode!=200) {
+				System.out.println("Welcome class에서 GeustGroup 생성 실패");
+				System.out.println(AwsVo.get(0).errmsg);
+				}
 			try {
-				Folder1.mkdir(); // 폴더 생성합니다.
+				Folder.mkdir(); //계정 폴더 생성
 				System.out.println(email+" 폴더가 생성되었습니다.");
+				for (String FolderName : folderList) {
+					Folder = new File(uploadController.ImagePath+File.separator + email + File.separator + FolderName);
+					Folder.mkdir(); //기본 collection 폴더 생성
+					System.out.println(FolderName+" 폴더가 생성되었습니다.");
+					Folder = new File(uploadController.ImagePath+File.separator + email + File.separator + FolderName + File.separator + "subimg");
+					Folder.mkdir(); // 썸네일 폴더 생성
+					System.out.println("subimg 폴더가 생성되었습니다.");
+				}
+			
 			} catch (Exception e) {
 				e.getStackTrace();
 			}
-		} else {}
-		File Folder2 = new File(uploadController.ImagePath +File.separator+email + File.separator + "ResidentGroup");
-		if (!Folder2.exists()) {
-			try {
-				Folder2.mkdir(); // 폴더 생성합니다.
-				System.out.println("ResidentGroup 폴더가 생성되었습니다.");
-			} catch (Exception e) {
-				e.getStackTrace();
-			}
-		} else {}
-		File Folder3 = new File(uploadController.ImagePath +File.separator+email + File.separator + "CautionGroup");
-		if (!Folder3.exists()) {
-			try {
-				Folder3.mkdir(); // 폴더 생성합니다.
-				System.out.println("CautionGroup 폴더가 생성되었습니다.");
-			} catch (Exception e) {
-				e.getStackTrace();
-			}
-		} else {}
-		File Folder4 = new File(uploadController.ImagePath +File.separator+email + File.separator + "GesutGroup");
-		if (!Folder4.exists()) {
-			try {
-				Folder4.mkdir(); // 폴더 생성합니다.
-				System.out.println("GesutGroup 폴더가 생성되었습니다.");
-			} catch (Exception e) {
-				e.getStackTrace();
-			}
-		} else {}
-		if(Folder1.exists() && Folder2.exists() && Folder3.exists()) System.out.println("모든 폴더가 생성되었습니다.");
-		else System.out.println("일부 폴더가 생성되지 않았습니다.");
+		}else System.out.println("email 폴더가 존재합니다. Welcome process pass");
 	}
 }
+	

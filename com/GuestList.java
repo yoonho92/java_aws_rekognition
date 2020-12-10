@@ -107,7 +107,7 @@ public class GuestList {
 				if (!new File(filePath).exists() || new File(Topath + File.separator + SubimgVo.filename).exists()) {
 					continue;
 				}
-				Boolean bool = new FolderCheck().FileMove(filePath, Topath);
+				Boolean bool = new FolderCheck(email, "GuestGroup").FileMove(filePath, Topath);
 				if (bool)
 					System.out.println(SubimgVo.filename + "->" + RF + " Move성공");
 				else

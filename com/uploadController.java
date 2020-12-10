@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -11,6 +13,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+
+import org.json.JSONObject;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 		* 10, location = "/Users/yoonho/Desktop/java/uploadfile", fileSizeThreshold = 1024 * 1024 * 10)
 @WebServlet({ "/index", "/upload", "/createcollection", "/listcollections", "/deletecollection",
 		"/addfacestocollection", "/listfacesincollection", "/deletefacesfromcollection",
-		"/faceauthentication","/welcome","/home","/GuestList"})
+		"/faceauthentication","/welcome","/home","/guestlist"})
 public class uploadController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	public static String ImagePath ="/Users/yoonho/Desktop/java/uploadfile";
@@ -43,13 +47,16 @@ public class uploadController extends HttpServlet {
 		// TODO Auto-generated method stub
 
 		response.addHeader("Access-Control-Allow-Origin",request.getHeader("Origin"));
-		
+		response.setContentType("text/html;charset=utf-8");
 		PrintWriter pw;
 		String collectionName;
 		String email;
 		String name;
+		String InputJson;
 		email = "yoonho2015@gmail.com";
 		name = "yoonho";
+		//첫 사용자시 Welcome 실행, collection을 생성하고 기본 폴더 생성
+		new Welcome(email);
 		switch (request.getServletPath()) {
 		case "/home":
 			request.getRequestDispatcher("home.jsp").forward(request, response);
@@ -59,31 +66,32 @@ public class uploadController extends HttpServlet {
 			new Welcome(email);
 			break;
 		case "/addfacestocollection":
-//			DBjson = new JSONObject(request.getParameter("DBjson"));
-//			collectionName = request.getParameter("collectionName");
+
 			collectionName = "GuestGroup";
-			new FolderCheck(email, collectionName);
+			if(!new FolderCheck(email, collectionName).checkIndex) {
+				break;
+			}
 			Part AFCpart = request.getPart("file");
-			new SaveImage(email, collectionName, AFCpart);
+			String AFCfilename = new SaveImage(email, collectionName, AFCpart).Filename;
 			ArrayList<AwsVo> AFCresult = new AddFacesToCollection().AddFacesToCollectionact(collectionName, email,
-					AFCpart.getSubmittedFileName());
-			System.out.println(AFCresult);
+					AFCfilename);
 			new SubImage(AFCresult);
+			System.out.println(AFCresult);
 			String AFCresultjson = new ObjectMapper().writeValueAsString(AFCresult);
 			pw = response.getWriter();
 			pw.print(AFCresultjson);
 			break;
 		case "/createcollection":
 			collectionName = request.getParameter("collectionName");
-			new FolderCheck(email).FolderCreate(email, collectionName);
-			ArrayList<AwsVo> CCresult = new CreateCollection().CreateCollectionAct(email, collectionName);
+
+			new FolderCheck(email, collectionName).FolderCreate();
+			ArrayList<AwsVo> CCresult = new CreateCollection().CreateCollectionAct(email, collectionName);			
 			String CCresultjson = new ObjectMapper().writeValueAsString(CCresult);
 			System.out.println(CCresultjson);
 			pw = response.getWriter();
 			pw.print(CCresultjson);
 			break;
 		case "/listcollections":
-			new FolderCheck(email);
 			ArrayList<AwsVo> LCresult = new ListCollections().ListCollectionact(email, name);
 			String LCresultjson = new ObjectMapper().writeValueAsString(LCresult);
 			pw = response.getWriter();
@@ -91,10 +99,9 @@ public class uploadController extends HttpServlet {
 			break;
 		case "/deletecollection":
 			collectionName = request.getParameter("collectionName");
-			new FolderCheck(email, collectionName);
 			ArrayList<AwsVo> DCresult = new DeleteCollection().DeleteCollectionact(email, collectionName);
 			System.out.println(DCresult);
-			new FolderCheck().FolderDelete(email, collectionName);
+			new FolderCheck(email, collectionName).FolderDelete(email, collectionName);
 			String DCresultjson = new ObjectMapper().writeValueAsString(DCresult);
 			System.out.println(DCresultjson);
 			pw = response.getWriter();
@@ -104,7 +111,6 @@ public class uploadController extends HttpServlet {
 			
 			collectionName = request.getParameter("LFCtext");
 			email = "yoonho2015@gmail.com";
-			new FolderCheck(email, collectionName);
 			ArrayList<SubimgVo> LFCresult = new ListFacesInCollection().ListFacesInCollectionact(collectionName, email);
 			String LFCresultjson = new ObjectMapper().writeValueAsString(LFCresult);
 			pw = response.getWriter();
@@ -112,18 +118,16 @@ public class uploadController extends HttpServlet {
 			break;
 		case "/deletefacesfromcollection":
 			collectionName = request.getParameter("DFCtext");
-			new FolderCheck(email, collectionName);
 			String facesId[] = { "" };// 웹에서 select된 목록 받아서 faceid 배열 생
 			String filename ="";
 			String collectionId = "yoonho2015."+collectionName;
 			ArrayList<AwsVo> DFCresult = new DeleteFacesFromCollection().DeleteFacesFromCollectionact(collectionId,
 					facesId);
-			new FolderCheck().ImageDelete(email, collectionName,filename);
+			new FolderCheck(email, collectionName).ImageDelete(filename);
 			System.out.println(DFCresult);
 			break;
 		case "/faceauthentication":
 
-			response.setContentType("text/html;charset=utf-8");
 			pw = response.getWriter();
 			String imageSrc = request.getParameter("image");
 			String SaveFilename = new SaveImage(email,imageSrc).Filename;
@@ -162,7 +166,10 @@ public class uploadController extends HttpServlet {
 				//GuestGroup에 해당 face 추가
 				ArrayList<AwsVo> GesutAFCresult = new AddFacesToCollection().AddFacesToCollectionact("GuestGroup", email,
 						Filename);
+				//썸네일 이미지 생성
 				new SubImage(GesutAFCresult);
+				//동일 인물별로 분류를 하고 폴더생성 후 파일 이동
+				new GuestList(email).Classification();
 				imgPath = "http://localhost:8080/localTest/img" + File.separator + email + File.separator
 						+ "GuestGroup" + File.separator + "subimg" + File.separator + Filename;
 				SubimgVo = new SubimgVo();
@@ -175,10 +182,36 @@ public class uploadController extends HttpServlet {
 				System.out.println("/faceauthentication 내부 switch문 case default 진입");
 				break;
 			}
-		case "/GuestList":
-			String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(new GuestList("yoonho2015@gmail.com").voSameFace);
-			response.getWriter().append(json);
+		case "/guestlist":
+			System.out.println("GL진입");
+			HashMap<String, HashSet<SubimgVo>> GL = new GuestList(email).voSameFace;
+			String confFilePath = ImagePath+File.separator+email+File.separator+"GuestGroup"+ File.separator + "GuestGroup.txt";
+			if(new File(confFilePath).exists()) {
+				//json파일을 읽어서 String에 저장
+				String confJson = new JsonIO().Read(confFilePath);
+				//json형식으로 이루어진 String을 HashMap형태의 객체로 저장
+				HashMap<String,String> confMap = new ObjectMapper().readValue(confJson, HashMap.class);
+				System.out.println(confMap);
+				//위의 HashMap을, 반복문을 이용 value값에 필요한 값이 있는지 확인
+				for (String Key: confMap.keySet()) {
+					if(confMap.get(Key).equals("t")) {
+						System.out.println("if");
+						//필요한 값이 나오면 GL과 conMap이 같은 Key를 공유한다는 것을 이용해 GL의 해당Value에 값 대입
+						for (SubimgVo GLvo : GL.get(Key)) {
+							GLvo.setIndex(confMap.get(Key));
+						}
+					}
+				}
+			}
+			String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(GL);
+			System.out.println(json);
+			pw = response.getWriter();
+			pw.write(json);
 			break;
+		case"/guestsetindex":
+			
+			InputJson = request.getParameter("JsonData");
+			Boolean result = new JsonIO().Write(InputJson, email);
 		default:
 		break;
 		}

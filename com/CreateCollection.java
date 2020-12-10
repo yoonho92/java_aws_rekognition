@@ -21,7 +21,7 @@ public class CreateCollection  {
 	try{
 		AwsVo.setCollectionId(collectionId);	
 		AwsVo.setState("Collection Created");
-		AwsVo.setStcode(rekognitionClient.createCollection(request).getStatusCode());
+		AwsVo.setStcode(200);
 		voList.add(AwsVo);
 	}
 	catch(AmazonRekognitionException e){

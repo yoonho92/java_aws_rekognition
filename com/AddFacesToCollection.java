@@ -49,6 +49,7 @@ public class AddFacesToCollection {
 				AwsVo.setBoundingBoxTop(faceRecord.getFace().getBoundingBox().getTop());
 				AwsVo.setBoundingBoxWidth(faceRecord.getFace().getBoundingBox().getWidth());
 				AwsVo.setBoundingBoxHeight(faceRecord.getFace().getBoundingBox().getHeight());
+				
 				voList.add(AwsVo);
 				List<UnindexedFace> unindexedFaces = indexFacesResult.getUnindexedFaces();
 				if(!unindexedFaces.isEmpty()) System.out.println("Faces indexed successful");
@@ -69,7 +70,18 @@ public class AddFacesToCollection {
 			AwsVo.setAction("AddFacesToCollectionact");
 			voList.add(AwsVo);
 			return voList;
-			}		
+		}
+		if(voList.isEmpty()) {
+			AwsVo = new AwsVo();
+			AwsVo.setFilename(fileName);
+			AwsVo.setEmail(email);	
+			AwsVo.setCollectionName(collectionName);
+			AwsVo.setCollectionId(collectionId);
+			AwsVo.setAction("AddFacesToCollectionact");
+			AwsVo.setState("식별 가능한 Face가 존재하지 않습니다.");
+			AwsVo.setStcode(400);
+			voList.add(AwsVo);
+		}
 		return voList;
 	}
 }

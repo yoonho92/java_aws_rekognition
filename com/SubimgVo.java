@@ -10,6 +10,7 @@ public class SubimgVo {
 	String msg;
 	String errcode;
 	String Date;
+	String Index;
 	public String getEmail() {
 		return email;
 	}
@@ -58,17 +59,24 @@ public class SubimgVo {
 	public void setDate(String date) {
 		Date = date;
 	}
+	public String getIndex() {
+		return Index;
+	}
+	public void setIndex(String index) {
+		Index = index;
+	}
 	@Override
 	public String toString() {
 		return "SubimgVo [email=" + email + ", collectionName=" + collectionName + ", filename=" + filename
 				+ ", imgPath=" + imgPath + ", faceId=" + faceId + ", msg=" + msg + ", errcode=" + errcode + ", Date="
-				+ Date + "]";
+				+ Date + ", Index=" + Index + "]";
 	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((Date == null) ? 0 : Date.hashCode());
+		result = prime * result + ((Index == null) ? 0 : Index.hashCode());
 		result = prime * result + ((collectionName == null) ? 0 : collectionName.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((errcode == null) ? 0 : errcode.hashCode());
@@ -91,6 +99,11 @@ public class SubimgVo {
 			if (other.Date != null)
 				return false;
 		} else if (!Date.equals(other.Date))
+			return false;
+		if (Index == null) {
+			if (other.Index != null)
+				return false;
+		} else if (!Index.equals(other.Index))
 			return false;
 		if (collectionName == null) {
 			if (other.collectionName != null)
@@ -129,6 +142,7 @@ public class SubimgVo {
 			return false;
 		return true;
 	}
+	
 
 	
 }

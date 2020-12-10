@@ -15,7 +15,10 @@ public class SubImage {
 	//MFbounding 메서드 제거
 	public SubImage(ArrayList<AwsVo> voList) {
 		AwsVo AwsVo = voList.get(0);
-		if(AwsVo.stcode>=400) return;
+		if(AwsVo.stcode>=400) {
+			System.out.println("SubImage 클래스 fail, stcode :"+AwsVo.stcode);
+			return;
+			}
 		String email = AwsVo.getEmail();
 		String collectionName = AwsVo.getCollectionName();
 		String filename = AwsVo.getFilename();

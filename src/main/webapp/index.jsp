@@ -157,6 +157,26 @@ async function DeleteCollection() {
       }
     return return_data;
   }
+async function GuestList(){
+
+    let return_data ={error:0,message:''};
+    try {
+        let GLdata = new FormData();
+        let response = await fetch('<%=cp%>/guestlist',{
+          method: 'POST',
+        body:GLdata
+        });
+        let response_text = await response.text();
+        response_json = JSON.parse(response_text);
+        console.log(response_json);
+        response_text = response_text.replace(/\n/g,"<br>");
+        
+        document.getElementById('GLh4').innerHTML= response_text;
+        if(response.status != 200) {throw new Error('HTTP response code != 200'); }
+    }catch (e) {
+      return_data={error:1,message:e.message};
+    } return return_data;
+  }
 window.onload=function(){
 	document.getElementById("CCbtn").addEventListener('click', async function(){
 	    let CC = await CreateCollection();
@@ -188,6 +208,11 @@ window.onload=function(){
 	    if(LC.error==0) document.getElementById('state').innerText="LC OK";
 	    else if(LC.error ==1) alert("collection creating faied - "+ LC.message)
 	});
+	document.getElementById("GLbtn").addEventListener('click', async function() {
+	    let GL = await GuestList();
+	    if(GL.error ==0)document.getElementById('state').innerText="GL OK";
+	    else if(GL.error ==1) document.getElementById('state').innerText="GL fail";
+	  });
 }
 
 </script>
@@ -230,9 +255,11 @@ window.onload=function(){
 	<h4 id="DFCh4"></h4>
 	<br>
 	<br>
-	<form action="<%= request.getContextPath() %>/GuestList" method="POST">
-	<input type = "submit" value="OK">
-	</form>
+	<input type="button" name="" value="GuestList" id="GLbtn">
+	<h4 id="GLh4"></h4>
+	<br>
+	<br>
+
 
 	<h2 id="state"></h2>
 </body>

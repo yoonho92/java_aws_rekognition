@@ -6,48 +6,41 @@ import java.nio.file.Paths;
 
 
 public class FolderCheck {
+
+
 	String email;
 	String collectionName;
-
+	Boolean checkIndex;
+	//서블릿의 모든 분기의 시작점으로 AWS기능 실행 및 FolderCheck 메서드 실행 이전에 필수 폴더를 체크하여 안정성 향상
 	public FolderCheck(String email, String collectionName) {
 		this.email = email;
 		this.collectionName = collectionName;
-		String checkPath = uploadController.ImagePath + File.separator + email + File.separator + collectionName;
-		if (!new File(checkPath).exists()) {
-			System.out.println("FolderCheck 실패");
-			return;
+		File Folder = new File(uploadController.ImagePath + File.separator + email + File.separator +collectionName);
+		if(!Folder.exists()) {
+			checkIndex = false;
+			System.out.println("FolderCheck 클래스 : Foldercheck fail");
 		}
+		System.out.println("FolderCheck 클래스 : Foldercheck pass");
+		checkIndex = true;
 	}
-
-	public FolderCheck(String email) {
-		String checkPath = uploadController.ImagePath + File.separator + email;
-		if (!new File(checkPath).exists()) {
-			System.out.println("FolderCheck 실패");
-			return;
-		}
-		
-	}
-	public FolderCheck() {}
 	
-	public void FolderCreate(String email, String collectionName) {
+	public void FolderCreate() {
 		// TODO Auto-generated method stub
 
 		File Folder = new File(uploadController.ImagePath + File.separator + email);// 저장위치 확정하고 경로완성할
-		// 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
-		if (!Folder.exists()) {
-			try {
-				Folder.mkdir(); // 폴더 생성합니다.
-				System.out.println(email + " 폴더가 생성되었습니다.");
-			} catch (Exception e) {
-				e.getStackTrace();
-			}
-		} else {
-			System.out.println(email + "기존에 생성된 폴더 입니다.");
-		}
+		// Welcome이 있으므로 email 폴더 체크는 생략
+//		if (!Folder.exists()) {
+//			try {
+//				Folder.mkdir(); // 폴더 생성합니다.
+//				System.out.println(email + " 폴더가 생성되었습니다.");
+//			} catch (Exception e) {
+//				e.getStackTrace();
+//			}
+//		} else {
+//			System.out.println(email + "기존에 생성된 폴더 입니다.");
+//		}
 
-		Folder = new File(uploadController.ImagePath + File.separator + email + File.separator + collectionName);// 저장위치
-																													// 확정하고
-																													// 경로완성할
+		Folder = new File(uploadController.ImagePath + File.separator + email + File.separator + collectionName);
 		// 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
 		if (!Folder.exists()) {
 			try {
@@ -102,7 +95,7 @@ public class FolderCheck {
 		}
 	}
 
-	public void ImageDelete(String email, String collectionName, String filename) {
+	public void ImageDelete(String filename) {
 		String path = uploadController.ImagePath + File.separator + email + File.separator + collectionName
 				+ File.separator + filename;
 		File file = new File(path);
