@@ -40,7 +40,8 @@ async function AddFacesToCollection(){
         throw new Error('No file selected');
       }else{
         let AFCdata = new FormData();
-        AFCdata.append('file',AFCupload.files[0]);   
+        AFCdata.append('file',AFCupload.files[0]); 
+        AFCdata.append('collectionName',document.getElementById("CCtext").value);
         let response = await fetch('<%=cp%>/addfacestocollection',{
           method: 'POST',
         body: AFCdata
@@ -80,7 +81,7 @@ async function ListFacesInCollection(){
     let return_data ={error:0,message:''};
     try {
         let LFCdata = new FormData();
-        LFCdata.append('LFCtext',document.getElementById('LFCtext').value);   
+        LFCdata.append('collectionName',document.getElementById('LFCtext').value);   
         let response = await fetch('<%=cp%>/listfacesincollection',{
           method: 'POST',
         body:LFCdata
@@ -118,7 +119,8 @@ async function DeleteFacesFromCollection(){
     let return_data ={error:0,message:''};
     try {
         let DFCdata = new FormData();
-        DFCdata.append('DFCtext',document.getElementById('DFCtext').value);   
+        DFCdata.append('DFCtext',document.getElementById('DFCtext').value);
+        DFCdata.append('collectionName',document.getElementById("CCtext").value);
         let response = await fetch('<%=cp%>/deletefacesfromcollection',{
           method: 'POST',
         body:DFCdata
@@ -152,6 +154,7 @@ async function DeleteCollection() {
     if(response.status != 200) {throw new Error('HTTP response code != 200');}
     let response_json =await response.text();
     document.getElementById('DLh4').innerText=response_json;
+    
     }catch (e) {
         return_data={error:1,message:e.message};
       }
@@ -168,13 +171,37 @@ async function GuestList(){
         });
         let response_text = await response.text();
         response_json = JSON.parse(response_text);
-        console.log(response_json);
+      	
         response_text = response_text.replace(/\n/g,"<br>");
         
         document.getElementById('GLh4').innerHTML= response_text;
         if(response.status != 200) {throw new Error('HTTP response code != 200'); }
     }catch (e) {
       return_data={error:1,message:e.message};
+    } return return_data;
+  }
+async function FaceAuthentication(){
+	
+    let return_data ={error:0,message:''};
+    try {
+    	var FAupload =document.getElementById("FAupload");
+        if(FAupload.files.length==0){
+          throw new Error('No file selected');
+        }else{
+          let FAdata = new FormData();
+          FAdata.append('file',FAupload.files[0]);   
+
+          let response = await fetch('<%=cp%>/faceauthentication',{
+            method: 'POST',
+          body: FAdata
+          });
+        
+        if(response.status != 200) {throw new Error('HTTP response code != 200'); }
+        let FAimgjson = await response.json();
+        }
+    } catch (e) {
+      return_data={error:1,message:e.message};
+      console.log(e.message)
     } return return_data;
   }
 window.onload=function(){
@@ -213,12 +240,17 @@ window.onload=function(){
 	    if(GL.error ==0)document.getElementById('state').innerText="GL OK";
 	    else if(GL.error ==1) document.getElementById('state').innerText="GL fail";
 	  });
+	document.getElementById("FAbtn").addEventListener('click', async function() {
+	    let FA = await FaceAuthentication();
+	    if(FA.error ==0) document.getElementById('state').innerText="FA OK";
+	    else if(FA.error ==1) document.getElementById('state').innerText="FA fail";
+	  });
 }
 
 </script>
 </head>
 <body>
-	<
+	
 	<input type="file" accept="image/*" id="AFCupload" name="upload3"
 		value="" onchange="previewFile()">
 	<input type="button" id="AFCbtn" value="AddFacesToCollection">
@@ -260,6 +292,11 @@ window.onload=function(){
 	<br>
 	<br>
 
+	<input type="file" accept="image/*" id="FAupload" name="upload4"
+		value="" onchange="previewFile()">
+	<input type="button" id="FAbtn" value="FA">
+<img src="./images/link_theapplication_2893.ico" height="100"
+		alt="preview4" id="FAuploadimg">
 
 	<h2 id="state"></h2>
 </body>

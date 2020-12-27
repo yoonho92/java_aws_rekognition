@@ -1,4 +1,5 @@
 
+
 // withFaceMatchThreshold(60F->70F), 미일치 결과 반환시 원본 이미지의 바운딩박스 및 신뢰도 추가
 import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
@@ -13,17 +14,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 public class SearchFaceMatchingImageCollection {
+	//매개변수로 받은 email과 collection name, file name으로 서버내 이미지파일이 저장된 경로를 지정하고 얼굴을 검색하여 일치하는 결과를 arraylist로 반환
 	public ArrayList<AwsVo> SearchFaceMatchingImageCollectionact(String email, String collectionName,
 			String fileName){
+		System.out.println(email);
+		System.out.println(collectionName);
+		System.out.println(fileName);
 		AwsVo AwsVo = new AwsVo();
 		ArrayList<AwsVo> voList = new ArrayList<AwsVo>();
 		AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.defaultClient();
-
-		Image image = new AwsPath(uploadController.ImagePath+File.separator+email+File.separator + fileName).photo_source;
-// Search collection for faces similar to the largest face in the image.
+		//이기능은 방문자 발생시 카메라에 잡힌 인물을 대상으로 사용되므로 파일의 초기 저장위치는 GuestGroup폴더에 존재
+		Image image = new AwsPath(uploadController.ImagePath+File.separator+email+ File.separator +"GuestGroup"+File.separator + fileName).photo_source;
+		// Search collection for faces similar to the largest face in the image.
 		String collectionId = email.substring(0,email.lastIndexOf('@'))+'.'+collectionName;
 		SearchFacesByImageRequest searchFacesByImageRequest = new SearchFacesByImageRequest()
-				.withCollectionId(collectionId).withImage(image).withFaceMatchThreshold(70F).withMaxFaces(1);
+				.withCollectionId(collectionId).withImage(image).withFaceMatchThreshold(95F).withMaxFaces(1);
 
 		try {
 		SearchFacesByImageResult searchFacesByImageResult = rekognitionClient

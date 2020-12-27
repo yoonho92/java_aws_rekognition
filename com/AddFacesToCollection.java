@@ -1,5 +1,6 @@
 
 
+
 import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.AmazonRekognitionException;
@@ -15,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 //얼굴 추가시 저장되는 바운딩박스 메서드 변경 MFbounding -> Bounding
 public class AddFacesToCollection {
-
 	public ArrayList<AwsVo> AddFacesToCollectionact(String collectionName, String email,String fileName) {
+		System.out.println("AFC start");
 		AwsVo AwsVo = new AwsVo();
 		ArrayList<AwsVo> voList = new ArrayList<AwsVo>();
 		String path = uploadController.ImagePath+File.separator+email+File.separator+collectionName;
@@ -49,7 +50,6 @@ public class AddFacesToCollection {
 				AwsVo.setBoundingBoxTop(faceRecord.getFace().getBoundingBox().getTop());
 				AwsVo.setBoundingBoxWidth(faceRecord.getFace().getBoundingBox().getWidth());
 				AwsVo.setBoundingBoxHeight(faceRecord.getFace().getBoundingBox().getHeight());
-				
 				voList.add(AwsVo);
 				List<UnindexedFace> unindexedFaces = indexFacesResult.getUnindexedFaces();
 				if(!unindexedFaces.isEmpty()) System.out.println("Faces indexed successful");
@@ -69,19 +69,9 @@ public class AddFacesToCollection {
 			AwsVo.setCollectionId(collectionId);
 			AwsVo.setAction("AddFacesToCollectionact");
 			voList.add(AwsVo);
+			System.out.println("AFC Error " + voList);
 			return voList;
-		}
-		if(voList.isEmpty()) {
-			AwsVo = new AwsVo();
-			AwsVo.setFilename(fileName);
-			AwsVo.setEmail(email);	
-			AwsVo.setCollectionName(collectionName);
-			AwsVo.setCollectionId(collectionId);
-			AwsVo.setAction("AddFacesToCollectionact");
-			AwsVo.setState("식별 가능한 Face가 존재하지 않습니다.");
-			AwsVo.setStcode(400);
-			voList.add(AwsVo);
-		}
+			}		
 		return voList;
 	}
 }

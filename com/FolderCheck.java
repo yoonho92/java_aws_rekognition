@@ -1,4 +1,5 @@
 
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -6,6 +7,7 @@ import java.nio.file.Paths;
 
 
 public class FolderCheck {
+	//서버의 폴더 동작에 관련한 메서드 모음
 
 
 	String email;
@@ -19,9 +21,9 @@ public class FolderCheck {
 		if(!Folder.exists()) {
 			checkIndex = false;
 			System.out.println("FolderCheck 클래스 : Foldercheck fail");
-		}
+		}else {
 		System.out.println("FolderCheck 클래스 : Foldercheck pass");
-		checkIndex = true;
+		checkIndex = true;}
 	}
 	
 	public void FolderCreate() {
@@ -99,10 +101,18 @@ public class FolderCheck {
 		String path = uploadController.ImagePath + File.separator + email + File.separator + collectionName
 				+ File.separator + filename;
 		File file = new File(path);
-		if (file.exists()) {
-			try {
+		if (file.exists()&&file.isFile()) {
+			try {				
 				file.delete();
-				System.out.println(filename + "image가 삭제되었습니다.");
+				System.out.println(filename + " Image가 삭제되었습니다.");
+				//썸네일 파일 삭제
+				path = uploadController.ImagePath + File.separator + email + File.separator + collectionName
+						+ File.separator + "subimg" +File.separator+ filename;
+				file = new File(path);
+				if(file.exists()&&file.isFile()) {
+					file.delete();
+					System.out.println(filename + " SubImage가 삭제되었습니다.");
+				}
 			} catch (Exception e) {
 				e.getStackTrace();
 			}

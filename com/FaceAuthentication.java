@@ -1,7 +1,9 @@
 
+
 import java.io.File;
 import java.util.ArrayList;
 public class FaceAuthentication {
+	//방문자가 발생하였을시 방문자의 이미지를 받아 collection에서 존재여부를 체크하고 분류
 	ArrayList<AwsVo> voList;
 	public FaceAuthentication(String email,String SaveFilename) {
 		
@@ -11,19 +13,20 @@ public class FaceAuthentication {
 		String[] fileList = file.list();
 		for (String collectionName : fileList) {
 			//collection이름으로 디렉터리를 생성했으므로 디렉터리가 아닌경우 pass
-			if(!new File(uploadController.ImagePath+File.separator+email+File.separator+collectionName).isDirectory()) continue;
+
+			if(!new File(uploadController.ImagePath+File.separator+email+File.separator+collectionName).isDirectory()||collectionName.equals("GuestGroup")) continue;
+
 			System.out.println(collectionName +"검색 시작");
-			//해당 collection에 동일인이 있는지 검색
-			voList = new SearchFaceMatchingImageCollection().SearchFaceMatchingImageCollectionact(email,collectionName,SaveFilename);
-			//stcode가 200 일시 collection내에서 동일인이 검색이 된 경우로 어느 collection인지 
+			voList = new SearchFaceMatchingImageCollection().SearchFaceMatchingImageCollectionact(email,collectionName,SaveFilename);	
 			if(voList.get(0).getStcode() == 200) {
 				switch (voList.get(0).getCollectionName()) {
 				case "ResidentGroup":
+					System.out.println("resi 진입");
 					voList.get(0).setState("거주자 확인");
 					check =1;
 					break;
 				case "CautionGroup":
-					voList.get(0).setState("주의/위험인물 확인. \n 관계기관에 통보됩니다.");
+					voList.get(0).setState("주의 인물 확인");
 					voList.get(0).setStcode(210);
 					check =1;
 					break;

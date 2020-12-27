@@ -9,6 +9,7 @@ import com.amazonaws.services.rekognition.model.Image;
 import com.amazonaws.util.IOUtils;
 
 public class AwsPath {
+	//파일의 경로를 받아서 rekognition 메서드에서 읽을수 있는 Image객체로 변환
 	public Image photo_source=null;
 
 	public AwsPath(String path)

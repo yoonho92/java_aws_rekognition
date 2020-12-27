@@ -1,5 +1,6 @@
 
 
+
 import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.AmazonRekognitionException;
@@ -11,20 +12,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONObject;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 
 public class ListFacesInCollection {
-
+//aws서버에서 매개변수로 받은 collection을 조회하여 해당 collection 내의 이미지정보를 반환하는 클래스
 	public ArrayList<SubimgVo> ListFacesInCollectionact(String collectionName,String email) throws JsonProcessingException {
 		
 		ArrayList<AwsVo> voList=new ArrayList<AwsVo>();
 		ArrayList<SubimgVo> SubimgVoList=new ArrayList<SubimgVo>();
 		AwsVo AwsVo = new AwsVo();
 		SubimgVo SubimgVo = new SubimgVo();
+		
 		String collectionId = email.substring(0,email.lastIndexOf('@')) + '.'+collectionName;
+		if(collectionName == "CautionGroup") collectionId = collectionName;
 		AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.defaultClient();
 		ListFacesResult listFacesResult = null;
 		System.out.println("Faces in collection " + collectionName);
@@ -58,7 +59,7 @@ public class ListFacesInCollection {
 				SubimgVo.setEmail(email);
 				SubimgVo.setFilename(face.getExternalImageId());
 				SubimgVo.setFaceId(face.getFaceId());
-				String imgPath ="http://localhost:8080/localTest/img"+File.separator+email+File.separator+collectionName+File.separator+"subimg"+File.separator+face.getExternalImageId();
+				String imgPath = uploadController.subimgPath +File.separator+email+File.separator+collectionName+File.separator+"subimg"+File.separator+face.getExternalImageId();
 				SubimgVo.setImgPath(imgPath);
 				SubimgVoList.add(SubimgVo);
 			}			 

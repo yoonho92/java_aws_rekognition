@@ -1,7 +1,9 @@
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SubimgVo {
+	//AwsVo보단 필수적인 데이터를 모은 SubimgVo가 프론트에 반환해 쓰이기 편할것이기에 작성
 	String email;
 	String collectionName;
 	String filename;
@@ -11,6 +13,7 @@ public class SubimgVo {
 	String errcode;
 	String Date;
 	String Index;
+	String Key;
 	public String getEmail() {
 		return email;
 	}
@@ -65,11 +68,17 @@ public class SubimgVo {
 	public void setIndex(String index) {
 		Index = index;
 	}
+	public String getKey() {
+		return Key;
+	}
+	public void setKey(String key) {
+		Key = key;
+	}
 	@Override
 	public String toString() {
 		return "SubimgVo [email=" + email + ", collectionName=" + collectionName + ", filename=" + filename
 				+ ", imgPath=" + imgPath + ", faceId=" + faceId + ", msg=" + msg + ", errcode=" + errcode + ", Date="
-				+ Date + ", Index=" + Index + "]";
+				+ Date + ", Index=" + Index + ", Key=" + Key + "]";
 	}
 	@Override
 	public int hashCode() {
@@ -77,6 +86,7 @@ public class SubimgVo {
 		int result = 1;
 		result = prime * result + ((Date == null) ? 0 : Date.hashCode());
 		result = prime * result + ((Index == null) ? 0 : Index.hashCode());
+		result = prime * result + ((Key == null) ? 0 : Key.hashCode());
 		result = prime * result + ((collectionName == null) ? 0 : collectionName.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((errcode == null) ? 0 : errcode.hashCode());
@@ -104,6 +114,11 @@ public class SubimgVo {
 			if (other.Index != null)
 				return false;
 		} else if (!Index.equals(other.Index))
+			return false;
+		if (Key == null) {
+			if (other.Key != null)
+				return false;
+		} else if (!Key.equals(other.Key))
 			return false;
 		if (collectionName == null) {
 			if (other.collectionName != null)
@@ -143,6 +158,5 @@ public class SubimgVo {
 		return true;
 	}
 	
-
 	
 }

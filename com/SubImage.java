@@ -1,5 +1,6 @@
 
 
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,9 +13,12 @@ import javax.imageio.ImageIO;
 
 
 public class SubImage {
-	//MFbounding 메서드 제거
+	//SearchFaceMatchingidCollection 이나 SearchFaceMatchingimageCollection에서 반환받은 boundingbox데이터를 이용해 얼굴에 해당하는 이미지를
+	//크롭하여 해당하는 collection 폴더내의 subimg 폴더에 저장
+	AwsVo AwsVo;
 	public SubImage(ArrayList<AwsVo> voList) {
 		AwsVo AwsVo = voList.get(0);
+		this.AwsVo = AwsVo;
 		if(AwsVo.stcode>=400) {
 			System.out.println("SubImage 클래스 fail, stcode :"+AwsVo.stcode);
 			return;
@@ -27,12 +31,8 @@ public class SubImage {
 		float width = AwsVo.getBoundingBoxWidth();
 		float height = AwsVo.getBoundingBoxHeight();
 		try {
-			
+			if(collectionName == null) collectionName = "GuestGroup";
 			File imgfile = new File(uploadController.ImagePath+File.separator+email+File.separator+collectionName+File.separator+filename);
-			if(!imgfile.isFile()) {
-				imgfile = new File(uploadController.ImagePath+File.separator+email+File.separator+filename);
-
-				}
 			InputStream IS = new FileInputStream(imgfile);
 			BufferedImage BI = ImageIO.read(IS);
 
@@ -50,6 +50,14 @@ public class SubImage {
 			System.out.println("subimage 입출력에러");
 		}
 
+	}
+	public String getSubimgPath() {
+		
+		String SubimgPath = uploadController.subimgPath + File.separator + AwsVo.getEmail() + File.separator + AwsVo.getCollectionName() + File.separator + "subimg" + File.separator + AwsVo.getFilename();
+		
+		return SubimgPath;
+		
+		
 	}
 	
 }

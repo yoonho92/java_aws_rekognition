@@ -1,4 +1,5 @@
 
+
 import com.amazonaws.services.rekognition.model.AmazonRekognitionException;
 
 public class Error {
@@ -41,6 +42,7 @@ public class Error {
 
 //org.json.JSONobject는 parsing이전에 json string전체를 로딩하기때문에 
 //큰 크기를 가진 json파일에서는 비효율적이다.
+//존재하지않는 값을 가져오는 시도를 할경우 서버가 죽지는 않지만 작업이 로그없이 중단되는 경우 발생
 //그리고 가장큰 약점은 JSONException인데 이것은 try/catch문을 반드시 써야하기때문에 큰 불편으로 다가온다.
 
 //Gson은 200kiB이하의 작은 바이너리파일에서 효율적이고 간단하고 빠르다.

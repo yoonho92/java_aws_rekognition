@@ -43,9 +43,18 @@ window.onload=function(){
 
 <h1>문 앞</h1>
 <br>
+<div>
 <embed src="http://210.94.22.142:12000/stream" width="660" height="510" ></embed>
-<button id="FAbtn">들어가기</button>
+
+<br>
+
+<img alt="" src="./images/white.png" id="faceindexed"> 
+<h2 id="msg"> </h2>
+</div>
 <h4 id="state"></h4>
-<img alt="" src="./images/white.png" id="faceindexed"> <h2 id="msg"> </h2>
+<br>
+<button id="FAbtn">들어가기</button>
+
+
 </body>
 </html>

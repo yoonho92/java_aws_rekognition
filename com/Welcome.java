@@ -1,5 +1,6 @@
 
 
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -8,6 +9,7 @@ import java.util.regex.Pattern;
 public class Welcome {
 
 	public Welcome(String email) {
+
 		boolean emailCheck = Pattern.matches("\\w+@\\w+\\.[a-zA-Z]+", email);
 		if(!emailCheck) {
 			System.out.println("유효한 이메일 형식이 아닙니다.");
@@ -18,14 +20,15 @@ public class Welcome {
 		//해당 디렉토리가 없을경우 디렉토리를 생성
 		File Folder = new File(uploadController.ImagePath+File.separator + email);
 		if (!Folder.exists()) {
+			
 			ArrayList<AwsVo> AwsVo =new CreateCollection().CreateCollectionAct(email,"ResidentGroup");
 			if(AwsVo.get(0).stcode!=200) {
 				System.out.println("Welcome class에서 ResidentGroup collection 생성 실패");
 				System.out.println(AwsVo.get(0).errmsg);
 				}
-			AwsVo =new CreateCollection().CreateCollectionAct(email,"GeustGroup");
+			AwsVo =new CreateCollection().CreateCollectionAct(email,"GuestGroup");
 			if(AwsVo.get(0).stcode!=200) {
-				System.out.println("Welcome class에서 GeustGroup 생성 실패");
+				System.out.println("Welcome class에서 GuestGroup 생성 실패");
 				System.out.println(AwsVo.get(0).errmsg);
 				}
 			try {
