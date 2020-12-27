@@ -52,23 +52,23 @@ public class uploadController extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 
 		PrintWriter pw;
+		pw = response.getWriter();
 		String collectionName = null;
 		String email = null; //필수데이터
 		JSONObject DBjson = null; //프론트에 연결된 db의 회원정보가 담겨짐
 		JSONObject JsonStringObj = null; //	프론트에서 입력된 collection name이나 index등의 기타 데이터가 담겨진 오브젝트 변수
 		String JsonString = null; // 프론트에서 입력된 collection name이나 index등의 기타 데이터가 담겨진 변수
 		String resultJson = null; //프론트로 반환되는 변수
-		pw = response.getWriter();
+		
 		// 클라이언트측에서 요청하는 기능에 따라 DBjson가 null일 경우가 있기 때문에 null값을 참조하는 것을 방지하기 위해 체크
 		if (request.getParameter("DBjson") != null) {
 			DBjson = new JSONObject(request.getParameter("DBjson"));
-			email = DBjson.getString("cm_email");
-			
+			email = DBjson.getString("cm_email");			
 		} else {
 			System.out.println("DBjson에 값이 없습니다. (email, collection)");
 			email = request.getParameter("email");
-			System.out.println("email : " + email);
 			}
+		
 		// 클라이언트측에서 요청하는 기능에 따라 JsonData가 null일 경우가 있기 때문에 null값을 참조하는 것을 방지하기 위해 체크
 		if (request.getParameter("JsonData") != null) {
 			JsonString = request.getParameter("JsonData");
@@ -80,11 +80,13 @@ public class uploadController extends HttpServlet {
 				collectionName = new JSONObject(JsonString).getString("collectionName");
 			}
 		}
+		
 		//email의 값 여부 체크
 		if(email==null) {
 			pw.print("return, email is null");
 			return;
 			}
+		
 		//email 형식 체크 및 처음사용자의 서버 폴더 및 aws의 collection 셋팅
 		new Welcome(email);
 
@@ -92,6 +94,7 @@ public class uploadController extends HttpServlet {
 		case "/index":
 			request.getRequestDispatcher("index.jsp").forward(request, response);
 			break;
+			
 		case "/createcollection":
 			//기능이 동작하기 위한 정보가 담겨있는지 체크
 			if ((collectionName == null)) {
@@ -109,23 +112,27 @@ public class uploadController extends HttpServlet {
 			resultJson = new ObjectMapper().writeValueAsString(LCresult);
 			pw.print(resultJson);
 			break;
+			
 		case "/deletecollection":
 			//기능이 동작하기 위한 정보가 담겨있는지 체크
 			if ((collectionName == null) || !new FolderCheck(email, collectionName).checkIndex) {
 				System.out.println("return, deletecollection, collectionName or FolderCheck");
 				return;
 			}
+			
 			ArrayList<AwsVo> DCresult = new DeleteCollection().DeleteCollectionact(email, collectionName);
 			new FolderCheck(email, collectionName).FolderDelete(email, collectionName);
 			resultJson = new ObjectMapper().writeValueAsString(DCresult);
 			pw.print(resultJson);
 			break;
+			
 		case "/addfacestocollection":
 			//기능이 동작하기 위한 정보가 담겨있는지 체크
 			if ((collectionName == null) || !new FolderCheck(email, collectionName).checkIndex) {
 				System.out.println("return, addfacestocollection, collectionName or FolderCheck");
 				return;
 			}
+			
 			Part AFCpart = request.getPart("file");
 			// 사용자가 저장 파일의 이름은 현재 날짜와 시간으로 변환되어 저장되기 때문에 변수에 새로운 파일이름을 저장
 			String AFCfilename = new SaveImage(email, collectionName, AFCpart).Filename;
@@ -133,36 +140,38 @@ public class uploadController extends HttpServlet {
 					AFCfilename);
 			new SubImage(AFCresult);
 			SubimgVo SubimgVo = new ToSubimgVo(AFCresult, AFCfilename).SubimgVo;
-			System.out.println(SubimgVo);
 			resultJson = new ObjectMapper().writeValueAsString(SubimgVo);
 			pw.print(resultJson);
 			break;
+			
 		case "/listfacesincollection":
 			//기능이 동작하기 위한 정보가 담겨있는지 체크
 			if ((collectionName == null) || !new FolderCheck(email, collectionName).checkIndex) {
 				System.out.println("return, listfacesincollection, collectionName or FolderCheck");
 				return;
 			}
+			
 			ArrayList<SubimgVo> LFCresult = new ListFacesInCollection().ListFacesInCollectionact(collectionName, email);
 			resultJson = new ObjectMapper().writeValueAsString(LFCresult);
 			pw.print(resultJson);
 			break;
+			
 		case "/deletefacesfromcollection":
 			//기능이 동작하기 위한 정보가 담겨있는지 체크
 			if ((collectionName == null) || !new FolderCheck(email, collectionName).checkIndex) {
 				System.out.println("return, deletefacesfromcollection, collectionName or FolderCheck");
 				return;
 			}
+			
 			String filename = JsonStringObj.getString("filename");
-			String facesId[] = { JsonStringObj.getString("faceId") };// 웹에서 select된 목록 받아서 faceid 배열 생
+			String facesId[] = { JsonStringObj.getString("faceId") };// 웹에서 select된 이미지의 faceId로 이루어진 배열 생성
 			ArrayList<AwsVo> DFCresult = new DeleteFacesFromCollection().DeleteFacesFromCollectionact(email,
 					collectionName, facesId);
-			// DeleteFacesFromCollection에서 faceId를 삭제했을시 반환하는 성공코드를 조건문에 넣어 이후 작업 수행
-			if (DFCresult.get(0).getStcode() == 200)
-				new FolderCheck(email, collectionName).ImageDelete(filename);
+			new FolderCheck(email, collectionName).ImageDelete(filename);
 			resultJson = new ObjectMapper().writeValueAsString(DFCresult);
 			pw.print(resultJson);
 			break;
+			
 		case "/faceauthentication":
 			//getPart 매개변수에 프론트쪽에서 업로드해주는 이미지의 key값 입력
 			Part FApart = request.getPart("data");
@@ -184,29 +193,33 @@ public class uploadController extends HttpServlet {
 				resultJson = new ObjectMapper().writeValueAsString(SubimgVo200);
 				pw.print(resultJson);
 				break;
+				
 			case 210:
-				//주의 인물로 분류
-				// 이동시킬 파일
+				//주의 인물로 분류				
+				// 이동시킬 파일 경로
 				String Filepath = ImagePath + File.separator + email + File.separator+"GuestGroup"+File.separator + SaveFilename;
 				// 이동 대상 경로
 				String Topath = ImagePath + File.separator + email + File.separator + "CautionGroup" + File.separator
-						+ SaveFilename;
+						+ SaveFilename;				
 				// 파일 이동, 실패시 리턴
 				if (!new FolderCheck(email, "CautionGroup").FileMove(Filepath, Topath)) {
 					System.out.println("break,case210, FolderMove 실패");
 					break;
 				}
+				
 				//외부로 출력할 Vo로 변환
 				SubimgVo SubimgVo210 = new ToSubimgVo(FAresult, SaveFilename).SubimgVo;
 				resultJson = new ObjectMapper().writeValueAsString(SubimgVo210);
 				pw.print(resultJson);
 				break;
+				
 			case 220:
 				//custom 그룹에 할당된 인물로 분류
 				SubimgVo SubimgVo220 = new ToSubimgVo(FAresult, SaveFilename).SubimgVo;
 				resultJson = new ObjectMapper().writeValueAsString(SubimgVo220);
 				pw.print(resultJson);
 				break;
+				
 			case 300:
 				// 카메라에서 사람 얼굴이 식별이 되었으나 collection내에 일치하는 얼굴이 없는 경우 - 방문자 분류
 				
@@ -220,6 +233,7 @@ public class uploadController extends HttpServlet {
 //					System.out.println("FolderMove 실패");
 //					return;
 //				}
+				
 				// GuestGroup에 해당 face 추가
 				ArrayList<AwsVo> GuestAFCresult = new AddFacesToCollection().AddFacesToCollectionact("GuestGroup",
 						email, SaveFilename);
@@ -230,17 +244,19 @@ public class uploadController extends HttpServlet {
 				resultJson = new ObjectMapper().writeValueAsString(SubimgVo300);
 				pw.print(resultJson);
 				break;
+				
 			default:
 				break;
 			}
-			break;
+			
+			break; //case "/faceauthentication" break;
 		case "/guestlist":
 			HashMap<String, HashSet<SubimgVo>> GL = new GuestList(email).voSameFace;
 			
 			if (GL.isEmpty()) {
-				System.out.println("break, guestlist, GusetGruop is empty");
+				System.out.println("return, guestlist, GusetGruop is empty");
 				pw.print(GL);
-				break;
+				return;
 			}
 			
 			//GuestGroup.txt파일을 읽어서 index가 존재하면 GL에 저장
@@ -251,7 +267,6 @@ public class uploadController extends HttpServlet {
 				String confJson = new JsonIO().Read(confFilePath);
 				// json형식으로 이루어진 String을 HashMap형태의 객체로 저장
 				HashMap<String, String> confMap = new ObjectMapper().readValue(confJson, HashMap.class);
-				System.out.println(confMap);
 				// 위의 HashMap을, 반복문을 이용 value값에 필요한 값이 있는지 확인
 				for (String Key : confMap.keySet()) {
 					if (confMap.get(Key).equals("t")) {
@@ -266,11 +281,13 @@ public class uploadController extends HttpServlet {
 			resultJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(GL);
 			pw.write(resultJson);
 			break;
+			
 		case "/guestsetindex":
 			//선택된 방문지에게 특정 인덱스를 부여하여 텍스트파일로 저장
 			Boolean result = new JsonIO().Write(JsonString, email);
 			pw.print(result);
 			break;
+			
 		default:
 			break;
 		}
